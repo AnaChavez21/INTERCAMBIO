@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><h4>Intercambio Navideño</h4></title>
+    <title>Intercambio Navideño</title>
     <style>
         body {
             display: flex;
@@ -47,6 +47,10 @@
             display: none;
         }
     </style>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-firestore.js"></script>
 </head>
 <body>
 
@@ -56,10 +60,39 @@
 <div class="resultado" id="resultado"></div>
 
 <script>
-    let opciones = ["Ana", "Miriam", "David", "Carolina","Jorge Armando", "Yesenia", "Nancy","Jorge Abel","Martha","Silvia","Tomasa","Adolfo","Carmen","Mamita","papito","Isaias","Celene"];
+    // Configura Firebase
+ <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyD-EXAMPLE",
+        authDomain: "tu-proyecto.firebaseapp.com",
+        projectId: "tu-proyecto",
+        storageBucket: "tu-proyecto.appspot.com",
+        messagingSenderId: "123456789",
+        appId: "1:123456789:web:abcde12345"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+</script>
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+</script>
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    let opciones = [];
     const ruleta = document.getElementById("ruleta");
     const resultado = document.getElementById("resultado");
 
+    // Cargar las opciones desde Firestore
+    async function cargarOpciones() {
+        const querySnapshot = await db.collection("opciones").get();
+        opciones = querySnapshot.docs.map(doc => ({ id: doc.id, nombre: doc.data().nombre }));
+        actualizarRuleta();
+    }
+
+    // Función para girar la ruleta
     function girarRuleta() {
         if (opciones.length === 0) {
             resultado.style.display = "block";
@@ -70,17 +103,20 @@
         const giro = Math.floor(Math.random() * 360) + 720;  // Gira al menos dos vueltas completas
         ruleta.style.transform = `rotate(${giro}deg)`;
 
-        const indiceOpcion = Math.floor(((giro % 360) / (360 / opciones.length)));  // Calcula la opción basada en el ángulo
+        const indiceOpcion = Math.floor(((giro % 360) / (360 / opciones.length)));
         const opcionSeleccionada = opciones[indiceOpcion];
 
-        setTimeout(() => {
+        setTimeout(async () => {
             resultado.style.display = "block";
-            resultado.textContent = `¡Tu intercambio sera con: ${opcionSeleccionada}!`;
-            
-            // Elimina la opción seleccionada del array y ajusta el diseño de la ruleta
+            resultado.textContent = `¡Tu intercambio será con: ${opcionSeleccionada.nombre}!`;
+
+            // Eliminar la opción seleccionada de Firestore
+            await db.collection("opciones").doc(opcionSeleccionada.id).delete();
+
+            // Eliminar localmente y actualizar la ruleta
             opciones.splice(indiceOpcion, 1);
             actualizarRuleta();
-        }, 5000);  // Muestra el resultado después de la animación de 3 segundos
+        }, 3000); // Muestra el resultado después de 3 segundos
     }
 
     function actualizarRuleta() {
@@ -93,8 +129,10 @@
     }
 
     ruleta.addEventListener("click", girarRuleta);
+
+    // Cargar las opciones al iniciar
+    cargarOpciones();
 </script>
 
 </body>
 </html>
-
