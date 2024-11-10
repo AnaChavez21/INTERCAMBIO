@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><h4>Intercambio Navideño</h4></title>
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f2f2f2;
+            font-family: Arial, sans-serif;
+        }
+
+        .ruleta {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 8px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-image: conic-gradient(#FF5733 0 25%, #33CFFF 25% 50%, #FF33A1 50% 75%, #33FF57 75% 100%);
+            transition: transform 3s ease-out;
+        }
+
+        .puntero {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 40px;
+            background-color: #333;
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+        }
+
+        .resultado {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            color: #333;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ruleta" id="ruleta">
+    <div class="puntero"></div>
+</div>
+<div class="resultado" id="resultado"></div>
+
+<script>
+    let opciones = ["Ana", "Miriam", "David", "Carolina","Jorge Armando", "Yesenia", "Nancy","Jorge Abel","Martha","Silvia","Tomasa","Adolfo","Carmen","Mamita","papito","Isaias","Celene"];
+    const ruleta = document.getElementById("ruleta");
+    const resultado = document.getElementById("resultado");
+
+    function girarRuleta() {
+        if (opciones.length === 0) {
+            resultado.style.display = "block";
+            resultado.textContent = "No quedan opciones disponibles.";
+            return;
+        }
+
+        const giro = Math.floor(Math.random() * 360) + 720;  // Gira al menos dos vueltas completas
+        ruleta.style.transform = `rotate(${giro}deg)`;
+
+        const indiceOpcion = Math.floor(((giro % 360) / (360 / opciones.length)));  // Calcula la opción basada en el ángulo
+        const opcionSeleccionada = opciones[indiceOpcion];
+
+        setTimeout(() => {
+            resultado.style.display = "block";
+            resultado.textContent = `¡Tu intercambio sera con: ${opcionSeleccionada}!`;
+            
+            // Elimina la opción seleccionada del array y ajusta el diseño de la ruleta
+            opciones.splice(indiceOpcion, 1);
+            actualizarRuleta();
+        }, 5000);  // Muestra el resultado después de la animación de 3 segundos
+    }
+
+    function actualizarRuleta() {
+        const colores = ['#FF5733', '#33CFFF', '#FF33A1', '#33FF57', '#FFD700', '#FF8C00'];
+        const segmentos = opciones.length;
+        const anguloSegmento = 100 / segmentos;
+
+        let gradientes = opciones.map((_, i) => `${colores[i % colores.length]} ${i * anguloSegmento}% ${(i + 1) * anguloSegmento}%`);
+        ruleta.style.backgroundImage = `conic-gradient(${gradientes.join(', ')})`;
+    }
+
+    ruleta.addEventListener("click", girarRuleta);
+</script>
+
+</body>
+</html>
+
